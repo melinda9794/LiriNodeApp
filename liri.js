@@ -1,84 +1,37 @@
-var liri = require('./liriCode.js')
-var inquirer = require('inquirer');
+var fs = require("fs");
+var keys = require("./keys.js");
+var twitter = require("twitter");
+var params = process.argv.slice(2);
+
+//gets the twitter api from keys.js
+function myTweets() {
+  var client = new twitter({
+    consumer_key: keys.twitterKeys.consumer_key,
+    consumer_secret: keys.twitterKeys.consumer_secret,
+    access_token_key:  keys.twitterKeys.access_token_key,
+    access_token_secret: keys.twitterKeys.access_token_secret   
+  });
 
 
-var question = [{
-		type: 'input',
-		name: 'your_name',
-		message: 'Hello, my name is Liri , What is your  name?'
+  switch(params[0]){
+    case "my-tweets":
+    case "tweets":
+      myTweets();
+  }
 
-	}
-];
-
-inquirer.prompt(question).then(function(answer) {
-
-	function mainMenu() {
-
-		inquirer.prompt([{
-			type: 'list',
-			message: `${answer.your_name}, What you want to do?`,
-			name: 'commands',
-			choices: [
-				new inquirer.Separator(' <---Choices---> '), {
-					name: 'Look Dzmitry\' tweets'
-				}, {
-					name: 'Find Tweets on any topic'
-				}, {
-					name: 'Find the Song'
-				}, {
-					name: 'Find the movie'
-				}, {
-					name: 'Do a random'
-				}, {
-					name: 'Exit'
-				}
-
-
-			],
-
-
-
-		}]).then(function(answers) {
-
-
-
-			if (_______ === 'Find Tweets on any topic') {
-
-
-				const TweetTopic = {
-
-					type: 'input',
-					name: 'your_tweet',
-					message: 'What would you like to tweet?'
-
-				}
-			};
-
-			if ( ______ === 'Find the Song') {
-
-
-				var SongTopic = {
-
-					type: 'input',
-					name: 'your_song',
-					message: 'What song are you looking for?'
-
-				}
-			}
-
-			if ( _______ === 'Find the movie') {
-
-
-				var MovieTopic = {
-
-					type: 'input',
-					name: 'your_movie',
-					message: 'What movie are you looking for?'
-
-				}
-			}
-		});
-	}
-	mainMenu()
-
-});
+//grabs the last 20 tweets of the user from the twitter api and displays and logs them
+function myTweets(){
+  client.get('statuses/user_timeline', function(error, tweets, response){
+    console.log(error);
+    if(error) {
+      console.log(error);
+      throw error;
+    }
+    console.log("Your last 20 tweets:")
+    for (i = 0; i < 20; i++){
+      console.log(i+1 + ". On " + tweets[i].created_at + " You Tweeted: " + tweets[i].text);
+      fs.appendFile("log.txt", i+1 + ". On " + tweets[i].created_at + " You Tweeted: " + tweets[i].text + "\n", function(err){
+      })
+    }
+  });
+}
